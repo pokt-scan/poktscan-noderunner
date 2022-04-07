@@ -4,8 +4,8 @@ trap 'echo "# $BASH_COMMAND"' DEBUG
 
 set -e
 
-if [[ -z "$COMPANY_NAME" ]]; then
-    echo "Must provide COMPANY_NAME in environment" 1>&2
+if [[ -z "$COMPANY_DOMAIN" ]]; then
+    echo "Must provide COMPANY_DOMAIN in environment" 1>&2
     exit 1
 fi
 
