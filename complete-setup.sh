@@ -26,4 +26,6 @@ microk8s kubectl create namespace poktscan
 
 microk8s kubectl create configmap -n poktscan cluster-settings
 
+microk8s kubectl apply -f local-storage.yaml
+
 echo "Setup has been successful!"
