@@ -6,4 +6,4 @@ set -e
 
 microk8s helm3 repo remove jetstack
 microk8s helm3 repo remove prometheus-community
-sudo snap remove microk8s
+sudo snap remove --purge microk8s

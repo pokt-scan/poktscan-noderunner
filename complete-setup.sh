@@ -16,7 +16,18 @@ microk8s helm3 repo update
 
 microk8s helm3 install prometheus --namespace prometheus --create-namespace prometheus-community/kube-prometheus-stack
 
-microk8s helm3 upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.metrics.enabled=true --set controller.metrics.serviceMonitor.enabled=true --set controller.metrics.serviceMonitor.additionalLabels.release="prometheus"
+echo "Attempting to get current server external ipv4"
+
+EXTERNAL_IP=$(curl https://ifconfig.co/ip)
+
+echo "External IP: $EXTERNAL_IP"
+
+if [[ -z "$EXTERNAL_IP" ]]; then
+    echo "Could not identify external ip" 1>&2
+    exit 1
+fi
+
+microk8s helm3 upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.metrics.enabled=true --set controller.metrics.serviceMonitor.enabled=true --set controller.metrics.serviceMonitor.additionalLabels.release="prometheus" --set controller.service.externalIPs={"$EXTERNAL_IP"}
 
 microk8s helm3 install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.7.2 --set installCRDs=true
 
