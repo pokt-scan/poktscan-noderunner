@@ -31,8 +31,6 @@ microk8s helm3 upgrade --install ingress-nginx ingress-nginx --repo https://kube
 
 microk8s helm3 install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.7.2 --set installCRDs=true
 
-cat ./godaddy-webhook/resources.yaml | sed "s/{COMPANY_DOMAIN}/$COMPANY_DOMAIN/g" | microk8s kubectl apply -f -
-
 microk8s kubectl create namespace poktscan
 
 microk8s kubectl create configmap -n poktscan cluster-settings
