@@ -8,13 +8,10 @@ microk8s status --wait-ready
 
 microk8s enable dns storage helm3 metrics-server
 
+microk8s helm3 repo add jetstack https://charts.jetstack.io
 microk8s helm3 repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
-microk8s helm3 repo add jetstack https://charts.jetstack.io
-
 microk8s helm3 repo update
-
-microk8s helm3 install prometheus --namespace prometheus --create-namespace prometheus-community/kube-prometheus-stack
 
 echo "Attempting to get current server external ipv4"
 
@@ -27,14 +24,15 @@ if [[ -z "$EXTERNAL_IP" ]]; then
     exit 1
 fi
 
-microk8s helm3 upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.metrics.enabled=true --set controller.metrics.serviceMonitor.enabled=true --set controller.metrics.serviceMonitor.additionalLabels.release="prometheus" --set controller.service.externalIPs={"$EXTERNAL_IP"}
+microk8s kubectl create namespace poktscan --save-config --dry-run=client -o yaml | microk8s kubectl apply -f -
 
-microk8s helm3 install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.7.2 --set installCRDs=true
-
-microk8s kubectl create namespace poktscan
-
-microk8s kubectl create configmap -n poktscan cluster-settings
+microk8s kubectl create configmap -n poktscan cluster-settings --save-config --dry-run=client -o yaml | microk8s kubectl apply -f -
 
 microk8s kubectl apply -f local-storage.yaml
+
+microk8s helm3 upgrade --install prometheus --namespace prometheus --create-namespace prometheus-community/kube-prometheus-stack
+
+microk8s helm3 upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.metrics.enabled=true --set controller.metrics.serviceMonitor.enabled=true --set controller.metrics.serviceMonitor.additionalLabels.release="prometheus" --set controller.metrics.serviceMonitor.additionalLabels.prometheus="enabled"  --set controller.service.externalIPs={"$EXTERNAL_IP"}
+microk8s helm3 upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.7.2 --set installCRDs=true
 
 echo "Setup has been successful!"
