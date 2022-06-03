@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: pokt-service-monitor
+  labels:
+    release: tobs
+spec:
+  namespaceSelector:
+    matchNames:
+      - poktscan
+  selector:
+    matchLabels:
+      prometheus: enabled
+  endpoints:
+    - interval: 30s
+      port: prometheus-pocket
+      scheme: http
+      path: /metrics
+
